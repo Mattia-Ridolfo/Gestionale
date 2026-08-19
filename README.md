@@ -1,2 +1,0 @@
-# Gestionale
-Gestionale dei Lavori 
