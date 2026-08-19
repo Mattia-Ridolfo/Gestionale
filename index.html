@@ -131,7 +131,6 @@ tr:last-child td{border-bottom:none}
   <button class="btn btn-ghost" id="btnNuovoNoleggio">📦 Noleggio</button>
 </div>
 
-<!-- STATISTICHE DEL MESE SELEZIONATO -->
 <div class="month-stats" id="monthStats">
   <div class="title" id="monthStatsTitle">📊 Statistiche del mese</div>
   <div class="grid">
@@ -203,7 +202,6 @@ tr:last-child td{border-bottom:none}
   </div>
 </div>
 
-<!-- SEZIONE LAVORI - CLIENTI ESPANDIBILI CON I LORO LAVORI -->
 <div id="view-lavori" style="display:none">
   <div class="card">
     <div class="card-head">📋 Lavori per Cliente <span id="lavCount">0</span></div>
@@ -211,7 +209,6 @@ tr:last-child td{border-bottom:none}
   </div>
 </div>
 
-<!-- SEZIONE CLIENTI - SOLO CONTATTI -->
 <div id="view-clienti" style="display:none">
   <div class="card">
     <div class="card-head">👥 Rubrica Clienti <span id="clientiCount">0</span></div>
@@ -241,7 +238,6 @@ tr:last-child td{border-bottom:none}
   </div>
 </div>
 
-<!-- MODAL LAVORO -->
 <div class="modal" id="mModal"><div class="modal-box">
   <h2 id="mTitle">Nuovo lavoro</h2>
   <input type="hidden" id="mId">
@@ -256,7 +252,6 @@ tr:last-child td{border-bottom:none}
   <div class="modal-actions"><button class="btn btn-danger btn-sm" id="btnDel">🗑 Elimina</button><button class="btn btn-ghost btn-sm" id="btnAnnulla">Annulla</button><button class="btn btn-primary btn-sm" id="btnSalva">💾 Salva</button></div>
 </div></div>
 
-<!-- MODAL CLIENTE -->
 <div class="modal" id="mCliente"><div class="modal-box">
   <h2 id="mClienteTitle">Nuovo cliente</h2>
   <input type="hidden" id="clienteId">
@@ -266,7 +261,6 @@ tr:last-child td{border-bottom:none}
   <div class="modal-actions"><button class="btn btn-danger btn-sm" id="btnDelCliente">🗑 Elimina</button><button class="btn btn-ghost btn-sm" id="btnAnnullaCliente">Annulla</button><button class="btn btn-primary btn-sm" id="btnSalvaCliente">💾 Salva</button></div>
 </div></div>
 
-<!-- MODAL NOLEGGIO -->
 <div class="modal" id="mNoleggio"><div class="modal-box">
   <h2 id="mNoleggioTitle">Nuovo noleggio</h2>
   <input type="hidden" id="noleggioId">
@@ -281,7 +275,6 @@ tr:last-child td{border-bottom:none}
   <div class="modal-actions"><button class="btn btn-danger btn-sm" id="btnDelNoleggio">🗑 Elimina</button><button class="btn btn-ghost btn-sm" id="btnAnnullaNoleggio">Annulla</button><button class="btn btn-primary btn-sm" id="btnSalvaNoleggio">💾 Salva</button></div>
 </div></div>
 
-<!-- MODAL STRUMENTO -->
 <div class="modal" id="mStrumento"><div class="modal-box">
   <h2 id="mStrumentoTitle">Nuovo strumento</h2>
   <input type="hidden" id="strumentoId">
@@ -375,7 +368,7 @@ function ordinaStrumentiPerNome(lista) {
 }
 
 // ============================================================
-// SALVATAGGIO
+// SALVATAGGIO LOCALE
 // ============================================================
 function mostraSalvato(){
   var msg = document.getElementById('salvatoMsg');
@@ -1308,13 +1301,13 @@ document.addEventListener('click', function(e){
 });
 
 // ============================================================
-// SINCRONIZZAZIONE CON GITHUB
+// SINCRONIZZAZIONE CON GITHUB - QUI PRIMA DELL'AVVIO!
 // ============================================================
 
 const GITHUB_CONFIG = {
     username: 'Mattia-Ridolfo',   // SOSTITUISCI COL TUO USERNAME
     repo: 'Gestionale',            // NOME DEL TUO REPOSITORY
-    token: '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'      // SOSTITUISCI COL TOKEN
+    token: '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'      // SOSTITUISCI COL TOKEN
 };
 
 // Carica i dati da GitHub
@@ -1400,20 +1393,27 @@ salvaTutto = function() {
     }
 };
 
-// All'avvio, carica da GitHub
-async function avvioConSincronizzazione() {
+// ============================================================
+// AVVIO CON SINCRONIZZAZIONE
+// ============================================================
+async function avvioCompleto() {
+    // 1. Carica i dati da GitHub
     await caricaDaGitHub();
+    
+    // 2. Carica i dati dal localStorage
     caricaTutto();
+    
+    // 3. Aggiorna i select dei clienti
+    aggiornaSelectClienti();
+    
+    // 4. Renderizza tutto
     renderAll();
-    console.log('🔄 Sincronizzazione completata!');
+    
+    console.log('🚀 Studio Log Pro avviato con sincronizzazione!');
 }
 
-// Avvio modificato
-avvioConSincronizzazione().then(() => {
-    aggiornaSelectClienti();
-});
-
-console.log('🚀 Studio Log Pro avviato con sincronizzazione!');
+// Avvia l'app
+avvioCompleto();
 </script>
 </body>
 </html>
