@@ -1,0 +1,1341 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Studio Log Pro</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#1a1a2e;color:#eee;font-family:Arial,sans-serif;padding:16px;padding-bottom:80px;max-width:1000px;margin:0 auto}
+h1{font-size:24px;color:#e8a33d}
+.sub{font-size:12px;color:#888;margin-bottom:12px}
+.btn{font-size:13px;padding:9px 16px;border-radius:6px;border:none;cursor:pointer;margin:2px;font-weight:bold;display:inline-block;touch-action:manipulation}
+.btn-primary{background:#e8a33d;color:#1a1a2e}
+.btn-success{background:#6fcf7c;color:#1a1a2e}
+.btn-danger{background:#e1604a;color:#fff}
+.btn-ghost{background:#2a2a3e;color:#eee;border:1px solid #444}
+.btn-sm{padding:5px 10px;font-size:12px}
+.top{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;align-items:center}
+.spacer{flex:1}
+.tabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:12px}
+.tab{padding:10px 16px;border:none;border-radius:6px;background:#2a2a3e;color:#888;font-weight:bold;font-size:13px;cursor:pointer;touch-action:manipulation}
+.tab.active{background:#e8a33d;color:#1a1a2e}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:12px}
+.stat{background:#232338;border-radius:6px;padding:10px;text-align:center;border:1px solid #333}
+.stat .lbl{font-size:9px;color:#888;text-transform:uppercase}
+.stat .val{font-size:18px;font-weight:bold;margin-top:2px}
+.val-amber{color:#e8a33d}
+.val-green{color:#6fcf7c}
+.val-red{color:#e1604a}
+.val-blue{color:#7ca8e8}
+.card{background:#232338;border:1px solid #333;border-radius:8px;overflow:hidden;margin-bottom:12px}
+.card-head{padding:10px 14px;border-bottom:1px solid #333;font-weight:bold;color:#888;display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px}
+table{width:100%;font-size:13px;border-collapse:collapse}
+th{text-align:left;padding:8px 10px;font-size:10px;color:#888;text-transform:uppercase;border-bottom:1px solid #333;background:#2a2a3e}
+td{padding:8px 10px;border-bottom:1px solid #333}
+tr:last-child td{border-bottom:none}
+.num{text-align:right;font-family:monospace}
+.net{color:#6fcf7c;font-weight:bold}
+.lordo{color:#e8a33d}
+.badge{display:inline-block;padding:2px 10px;border-radius:10px;font-size:11px;font-weight:bold}
+.badge-success{background:#2a4a2a;color:#6fcf7c}
+.badge-warning{background:#4a3a1a;color:#e8a33d}
+.badge-info{background:#1a3a4a;color:#7ca8e8}
+.badge-danger{background:#4a1a1a;color:#e1604a}
+.tag{display:inline-block;padding:2px 10px;border-radius:10px;font-size:11px;background:#2a2a3e;border:1px solid #444;color:#888}
+.tag.amber{color:#e8a33d;border-color:#6b5227}
+.tag.green{color:#6fcf7c;border-color:#35492f}
+.tag.blue{color:#7ca8e8;border-color:#2a4a6a}
+.empty{padding:30px;text-align:center;color:#888}
+.filters{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;align-items:center}
+.filters select,.filters input{background:#2a2a3e;color:#eee;border:1px solid #333;border-radius:6px;padding:8px 10px;font-size:14px;min-width:70px;font-family:inherit}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,0.8);display:none;align-items:center;justify-content:center;z-index:100;padding:16px}
+.modal.show{display:flex}
+.modal-box{background:#232338;border:1px solid #333;border-radius:10px;padding:20px;width:100%;max-width:480px;max-height:90vh;overflow:auto}
+.modal-box h2{font-size:18px;margin-bottom:12px}
+.field{margin-bottom:10px}
+.field label{font-size:11px;color:#888;display:block;margin-bottom:3px;text-transform:uppercase;font-weight:bold}
+.field input,.field select{width:100%;font-size:16px;background:#2a2a3e;color:#eee;border:1px solid #333;border-radius:6px;padding:8px 12px;font-family:inherit}
+.field textarea{width:100%;font-size:14px;background:#2a2a3e;color:#eee;border:1px solid #333;border-radius:6px;padding:8px 12px;font-family:inherit;resize:vertical;min-height:50px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.modal-actions{display:flex;gap:6px;margin-top:12px;flex-wrap:wrap;justify-content:flex-end}
+.hint{font-size:11px;color:#888;margin-top:-4px;margin-bottom:8px}
+.limit-wrap{background:#232338;border:1px solid #333;border-radius:8px;padding:10px 14px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+.limit-wrap .lbl{font-size:12px;color:#888}
+.limit-wrap .val{font-weight:700;font-size:18px}
+.limit-wrap .val.ok{color:#6fcf7c}
+.limit-wrap .val.warning{color:#e8a33d}
+.limit-wrap .val.danger{color:#e1604a}
+.bar{height:6px;background:#2a2a3e;border-radius:3px;flex:1;min-width:60px;overflow:hidden}
+.bar .fill{height:100%;border-radius:3px;transition:width .4s;background:#6fcf7c}
+.bar .fill.warning{background:#e8a33d}
+.bar .fill.danger{background:#e1604a}
+.client-card{background:#232338;border:1px solid #333;border-radius:8px;margin-bottom:8px;overflow:hidden}
+.client-head{padding:10px 14px;cursor:pointer;display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;background:#2a2a3e}
+.client-head .nome{font-weight:bold}
+.client-head .meta{font-size:12px;color:#888}
+.client-head .meta .net{color:#6fcf7c}
+.client-body{display:none;padding:0 12px 12px}
+.client-card.open .client-body{display:block}
+.client-card.open .caret{transform:rotate(90deg)}
+.caret{display:inline-block;transition:transform .2s}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal-cell{padding:8px 4px;text-align:center;border-radius:4px;cursor:pointer;background:#1a1a2e;border:1px solid #333;min-height:40px}
+.cal-cell.empty{background:transparent;border-color:transparent;cursor:default}
+.cal-cell.busy{background:#4a3a1a;border-color:#e8a33d}
+.cal-cell.today{border-color:#e8a33d}
+.cal-cell .num{font-size:14px;font-weight:500}
+.cal-cell .dot{width:6px;height:6px;border-radius:50%;background:#e8a33d;margin:2px auto 0;box-shadow:0 0 8px #e8a33d}
+.cal-cell .count{font-size:8px;color:#e8a33d}
+.cal-legend{display:flex;gap:16px;margin-top:8px;font-size:11px;color:#888;flex-wrap:wrap}
+.cal-legend span{display:flex;align-items:center;gap:4px}
+.cal-dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+.cal-dot.amber{background:#e8a33d}
+.cal-dot.blue{background:#7ca8e8}
+.cal-nav{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.cal-nav select{background:#2a2a3e;color:#eee;border:1px solid #333;border-radius:6px;padding:6px 10px;font-size:14px}
+.noleggio-subtab{display:flex;gap:4px;margin-bottom:8px}
+.noleggio-subtab .subtab{padding:6px 14px;border:none;border-radius:4px;background:#2a2a3e;color:#888;cursor:pointer;font-size:12px}
+.noleggio-subtab .subtab.active{background:#e8a33d;color:#1a1a2e}
+.salvato-msg{position:fixed;bottom:20px;right:20px;background:#2a4a2a;color:#6fcf7c;padding:10px 18px;border-radius:8px;font-size:13px;border:1px solid #6fcf7c;display:none;z-index:200;box-shadow:0 4px 20px rgba(0,0,0,0.5)}
+.month-stats{background:#232338;border:1px solid #333;border-radius:8px;padding:12px 16px;margin-bottom:12px;display:none}
+.month-stats.show{display:block}
+.month-stats .title{font-size:14px;color:#e8a33d;font-weight:bold;margin-bottom:8px}
+.month-stats .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.month-stats .item{background:#2a2a3e;border-radius:6px;padding:8px 12px;text-align:center}
+.month-stats .item .lbl{font-size:9px;color:#888;text-transform:uppercase}
+.month-stats .item .val{font-size:16px;font-weight:bold}
+.lavoro-card{background:#232338;border:1px solid #333;border-radius:8px;margin-bottom:8px;overflow:hidden}
+.lavoro-head{padding:10px 14px;cursor:pointer;display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;background:#2a2a3e}
+.lavoro-head .nome{font-weight:bold;color:#e8a33d}
+.lavoro-head .meta{font-size:12px;color:#888}
+.lavoro-head .meta .net{color:#6fcf7c}
+.lavoro-body{display:none;padding:0 12px 12px}
+.lavoro-card.open .lavoro-body{display:block}
+.lavoro-card.open .caret{transform:rotate(90deg)}
+@media(max-width:600px){.stats{grid-template-columns:repeat(2,1fr)}.row2,.row3{grid-template-columns:1fr}.month-stats .grid{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+
+<div class="salvato-msg" id="salvatoMsg">💾 Dati salvati!</div>
+
+<div class="top">
+  <div><h1>📊 Studio Log Pro</h1><div class="sub">Calendario & Gestione Lavori</div></div>
+  <div class="spacer"></div>
+  <button class="btn btn-primary" id="btnNuovoLavoro">➕ Lavoro</button>
+  <button class="btn btn-success" id="btnNuovoCliente">👤 Cliente</button>
+  <button class="btn btn-ghost" id="btnNuovoNoleggio">📦 Noleggio</button>
+</div>
+
+<!-- STATISTICHE DEL MESE SELEZIONATO -->
+<div class="month-stats" id="monthStats">
+  <div class="title" id="monthStatsTitle">📊 Statistiche del mese</div>
+  <div class="grid">
+    <div class="item"><div class="lbl">Lavori</div><div class="val val-blue" id="msLavori">0</div></div>
+    <div class="item"><div class="lbl">Lordo</div><div class="val val-amber" id="msLordo">€0</div></div>
+    <div class="item"><div class="lbl">Netto</div><div class="val val-green" id="msNetto">€0</div></div>
+    <div class="item"><div class="lbl">Da Ricevere</div><div class="val val-red" id="msDaRicevere">€0</div></div>
+  </div>
+</div>
+
+<div class="filters">
+  <select id="fAnno"><option value="all">Anno</option></select>
+  <select id="fMese"><option value="all">Mese</option></select>
+  <select id="fTipo"><option value="all">Tipo</option></select>
+  <select id="fStato"><option value="all">Stato</option><option value="pagato">Pagati</option><option value="da_pagare">Da pagare</option></select>
+  <select id="fClienteFilter"><option value="all">Tutti i clienti</option></select>
+  <input type="text" id="fSearch" placeholder="Cerca…">
+  <button class="btn btn-ghost btn-sm" id="btnAzzera">Azzera</button>
+</div>
+
+<div class="tabs" id="tabs">
+  <button class="tab active" data-view="dashboard">📊 Dashboard</button>
+  <button class="tab" data-view="calendario">📅 Calendario</button>
+  <button class="tab" data-view="lavori">📋 Lavori</button>
+  <button class="tab" data-view="clienti">👥 Clienti</button>
+  <button class="tab" data-view="pagamenti">💰 Pagamenti</button>
+  <button class="tab" data-view="noleggi">📦 Noleggi</button>
+</div>
+
+<div id="view-dashboard"><div class="card"><div class="card-head">📋 Ultimi Lavori <span id="dashCount">0</span></div><div id="dashTable"></div></div></div>
+
+<div id="view-calendario" style="display:none">
+  <div class="card">
+    <div class="card-head">
+      <span id="calTitle">Gennaio 2026</span>
+      <div class="cal-nav">
+        <select id="calMonthSelect"></select>
+        <select id="calYearSelect"></select>
+        <button class="btn btn-ghost btn-sm" id="calToday">Oggi</button>
+        <button class="btn btn-ghost btn-sm" id="calPrev">◀</button>
+        <button class="btn btn-ghost btn-sm" id="calNext">▶</button>
+      </div>
+    </div>
+    <div style="padding:12px">
+      <div class="cal-grid" id="calGrid"></div>
+      <div class="cal-legend">
+        <span><span class="cal-dot amber"></span> Giorno impegnato (lavoro)</span>
+        <span><span class="cal-dot blue"></span> Noleggio in corso</span>
+        <span>🟢 Clicca per vedere i dettagli</span>
+      </div>
+    </div>
+  </div>
+  <div id="calDetail" style="display:none">
+    <div class="card"><div class="card-head" id="calDetailTitle">Lavori del giorno</div><div id="calDetailList"></div></div>
+  </div>
+  <div id="calNoleggiDetail" style="display:none">
+    <div class="card"><div class="card-head" id="calNoleggiTitle">Noleggi del giorno</div><div id="calNoleggiList"></div></div>
+  </div>
+  <div class="limit-wrap">
+    <div>
+      <div class="lbl">📄 Prestazione Occasionale - Limite €5.000</div>
+      <div style="display:flex;align-items:center;gap:8px;margin-top:4px;flex-wrap:wrap">
+        <span class="val ok" id="occVal">€0</span>
+        <div class="bar"><div class="fill" id="occBar" style="width:0%"></div></div>
+        <span style="font-size:12px;color:#888" id="occPct">0%</span>
+      </div>
+    </div>
+    <div style="font-size:12px;color:#888" id="occCount">0 lavori</div>
+  </div>
+</div>
+
+<!-- SEZIONE LAVORI - CLIENTI ESPANDIBILI CON I LORO LAVORI -->
+<div id="view-lavori" style="display:none">
+  <div class="card">
+    <div class="card-head">📋 Lavori per Cliente <span id="lavCount">0</span></div>
+    <div id="lavTable"></div>
+  </div>
+</div>
+
+<!-- SEZIONE CLIENTI - SOLO CONTATTI -->
+<div id="view-clienti" style="display:none">
+  <div class="card">
+    <div class="card-head">👥 Rubrica Clienti <span id="clientiCount">0</span></div>
+    <div id="clientiList"></div>
+  </div>
+</div>
+
+<div id="view-pagamenti" style="display:none"><div class="card"><div class="card-head">💰 Da ricevere <span style="color:#e1604a;font-size:18px" id="pagTotale">€0</span></div><div id="pagTable"></div></div></div>
+
+<div id="view-noleggi" style="display:none">
+  <div class="card">
+    <div class="card-head">📦 Gestione Noleggi <button class="btn btn-primary btn-sm" id="btnNuovoNoleggio2">➕ Nuovo noleggio</button></div>
+    <div class="noleggio-subtab">
+      <button class="subtab active" data-sub="noleggi">📦 Noleggi</button>
+      <button class="subtab" data-sub="strumenti">🎛️ Strumentazione</button>
+    </div>
+    <div id="noleggiSubContent">
+      <div id="noleggiTable"></div>
+    </div>
+    <div id="strumentiSubContent" style="display:none">
+      <div style="padding:10px 14px;border-bottom:1px solid #333;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px">
+        <span style="font-size:12px;color:#888">Gestisci la tua strumentazione</span>
+        <button class="btn btn-primary btn-sm" id="btnNuovoStrumento">➕ Nuovo strumento</button>
+      </div>
+      <div id="strumentiTable"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL LAVORO -->
+<div class="modal" id="mModal"><div class="modal-box">
+  <h2 id="mTitle">Nuovo lavoro</h2>
+  <input type="hidden" id="mId">
+  <div class="row2"><div class="field"><label>Data inizio</label><input type="date" id="fStart"></div><div class="field"><label>Data fine</label><input type="date" id="fEnd"></div></div>
+  <div class="hint">Giorni: <strong id="giorniCount">1</strong></div>
+  <div class="field"><label>Cliente</label><select id="fClienteModal"><option value="">Seleziona</option></select></div>
+  <div class="field"><label>Tipo lavoro</label><select id="fTipoLav"></select></div>
+  <div class="field"><label>Tipo pagamento</label><select id="fTipoPag"></select></div>
+  <div class="field"><label>Luogo</label><input type="text" id="fLuogo" placeholder="Bologna"></div>
+  <div class="row2"><div class="field"><label>€ / giorno</label><input type="number" id="fPrezzo" min="0" step="10"></div><div class="field"><label>Netto stimato</label><input type="text" id="fNetPreview" disabled></div></div>
+  <div class="field"><label>Note</label><input type="text" id="fNote" placeholder="Facoltativo"></div>
+  <div class="modal-actions"><button class="btn btn-danger btn-sm" id="btnDel">🗑 Elimina</button><button class="btn btn-ghost btn-sm" id="btnAnnulla">Annulla</button><button class="btn btn-primary btn-sm" id="btnSalva">💾 Salva</button></div>
+</div></div>
+
+<!-- MODAL CLIENTE -->
+<div class="modal" id="mCliente"><div class="modal-box">
+  <h2 id="mClienteTitle">Nuovo cliente</h2>
+  <input type="hidden" id="clienteId">
+  <div class="field"><label>Nome</label><input type="text" id="fClienteNome" placeholder="Mario Rossi"></div>
+  <div class="field"><label>Email</label><input type="email" id="fClienteEmail" placeholder="email@example.it"></div>
+  <div class="field"><label>Telefono</label><input type="text" id="fClienteTel" placeholder="333 1234567"></div>
+  <div class="modal-actions"><button class="btn btn-danger btn-sm" id="btnDelCliente">🗑 Elimina</button><button class="btn btn-ghost btn-sm" id="btnAnnullaCliente">Annulla</button><button class="btn btn-primary btn-sm" id="btnSalvaCliente">💾 Salva</button></div>
+</div></div>
+
+<!-- MODAL NOLEGGIO -->
+<div class="modal" id="mNoleggio"><div class="modal-box">
+  <h2 id="mNoleggioTitle">Nuovo noleggio</h2>
+  <input type="hidden" id="noleggioId">
+  <div class="row2"><div class="field"><label>Data uscita</label><input type="date" id="fNoleggioStart"></div><div class="field"><label>Data rientro</label><input type="date" id="fNoleggioEnd"></div></div>
+  <div class="field"><label>Cliente</label><select id="fNoleggioCliente"><option value="">Seleziona</option></select></div>
+  <div class="field"><label>Materiale</label><input type="text" id="fNoleggioMateriale" placeholder="Es. Console M32, Microfoni, Cavi…"></div>
+  <div class="field"><label>Descrizione</label><textarea id="fNoleggioDesc" placeholder="Dettagli del noleggio"></textarea></div>
+  <div class="row2">
+    <div class="field"><label>Prezzo (€)</label><input type="number" id="fNoleggioPrezzo" min="0" step="10" placeholder="0"></div>
+    <div class="field"><label>Stato</label><select id="fNoleggioStato"><option value="da_rientrare">📤 Da rientrare</option><option value="rientrato">📥 Rientrato</option></select></div>
+  </div>
+  <div class="modal-actions"><button class="btn btn-danger btn-sm" id="btnDelNoleggio">🗑 Elimina</button><button class="btn btn-ghost btn-sm" id="btnAnnullaNoleggio">Annulla</button><button class="btn btn-primary btn-sm" id="btnSalvaNoleggio">💾 Salva</button></div>
+</div></div>
+
+<!-- MODAL STRUMENTO -->
+<div class="modal" id="mStrumento"><div class="modal-box">
+  <h2 id="mStrumentoTitle">Nuovo strumento</h2>
+  <input type="hidden" id="strumentoId">
+  <div class="field"><label>Nome strumento</label><input type="text" id="fStrumentoNome" placeholder="Es. Console M32, Microfono Shure SM58…"></div>
+  <div class="field"><label>Categoria</label><input type="text" id="fStrumentoCategoria" placeholder="Es. Console, Microfoni, Casse…"></div>
+  <div class="field"><label>Codice / Serial number</label><input type="text" id="fStrumentoSeriale" placeholder="Opzionale"></div>
+  <div class="field"><label>Note</label><input type="text" id="fStrumentoNote" placeholder="Condizioni, manutenzione…"></div>
+  <div class="modal-actions"><button class="btn btn-danger btn-sm" id="btnDelStrumento">🗑 Elimina</button><button class="btn btn-ghost btn-sm" id="btnAnnullaStrumento">Annulla</button><button class="btn btn-primary btn-sm" id="btnSalvaStrumento">💾 Salva</button></div>
+</div></div>
+
+<script>
+// ============================================================
+// DATI INIZIALI
+// ============================================================
+var clienti = [
+  {id:1, nome:'Mario Rossi', email:'mario@email.it', telefono:'3331234567'},
+  {id:2, nome:'Laura Bianchi', email:'laura@email.it', telefono:'3337654321'},
+  {id:3, nome:'Luca Verdi', email:'luca@email.it', telefono:'3339876543'},
+  {id:4, nome:'Studio Tecnico', email:'info@studio.it', telefono:'051123456'}
+];
+
+var lavori = [
+  {id:1, clienteId:1, descrizione:'Mario Rossi - Mix album', tipo:'Mix', tipoPagamento:'cooperativa', luogo:'Bologna', giorni:3, prezzoGiorno:350, startDate:'2026-01-15', endDate:'2026-01-17', note:'', pagato:false},
+  {id:2, clienteId:2, descrizione:'Laura Bianchi - Service audio', tipo:'Service audio', tipoPagamento:'occasionale_sostituto', luogo:'Milano', giorni:2, prezzoGiorno:400, startDate:'2026-01-20', endDate:'2026-01-21', note:'', pagato:false},
+  {id:3, clienteId:1, descrizione:'Mario Rossi - Mastering', tipo:'Mastering', tipoPagamento:'netto', luogo:'Bologna', giorni:1, prezzoGiorno:250, startDate:'2026-01-25', endDate:'2026-01-25', note:'', pagato:true},
+  {id:4, clienteId:3, descrizione:'Luca Verdi - Registrazione live', tipo:'Registrazione', tipoPagamento:'occasionale_sostituto', luogo:'Roma', giorni:4, prezzoGiorno:380, startDate:'2026-02-05', endDate:'2026-02-08', note:'', pagato:false},
+  {id:5, clienteId:4, descrizione:'Studio Tecnico - Consulenza audio', tipo:'Consulenza', tipoPagamento:'cooperativa', luogo:'Modena', giorni:2, prezzoGiorno:300, startDate:'2026-02-10', endDate:'2026-02-11', note:'', pagato:false}
+];
+
+var noleggi = [
+  {id:1, clienteId:1, materiale:'Console M32 + Stagebox', descrizione:'Noleggio per concerto', startDate:'2026-01-18', endDate:'2026-01-22', stato:'rientrato', prezzo:450},
+  {id:2, clienteId:2, materiale:'Microfoni Shure + Cavi XLR', descrizione:'Set completo per registrazione', startDate:'2026-02-01', endDate:'2026-02-15', stato:'da_rientrare', prezzo:320}
+];
+
+var strumenti = [
+  {id:1, nome:'Console M32', categoria:'Console', seriale:'M32-001', note:'In ottime condizioni'},
+  {id:2, nome:'Stagebox S32', categoria:'Stagebox', seriale:'S32-002', note:''},
+  {id:3, nome:'Microfono Shure SM58', categoria:'Microfoni', seriale:'SM58-003', note:'Usato ma funzionante'},
+  {id:4, nome:'Microfono Shure Beta 58', categoria:'Microfoni', seriale:'B58-004', note:''},
+  {id:5, nome:'Casse JBL EON 615', categoria:'Casse', seriale:'EON-005', note:''},
+  {id:6, nome:'Cavo XLR 5m', categoria:'Cavi', seriale:'', note:'Set di 10 cavi'}
+];
+
+var PAYMENT_TYPES = [
+  {id:'cooperativa', label:'Cooperativa (25%)'},
+  {id:'occasionale_sostituto', label:'Occasionale - sostituto (20%)'},
+  {id:'occasionale_privato', label:'Occasionale - privato/forfettario (0%)'},
+  {id:'netto', label:'Solo Netto'}
+];
+var TIPI = ['Fonico live','Backline','Monitor','Service audio','Registrazione','Mix','Mastering','Noleggio','Consulenza','Altro'];
+var OCC_LIMIT = 5000;
+
+var nextId = 6;
+var nextCl = 5;
+var nextNoleggio = 3;
+var nextStrumento = 7;
+var openClients = new Set();
+var openLavoriClients = new Set();
+var calMonth = new Date().getMonth();
+var calYear = new Date().getFullYear();
+var noleggiSubTab = 'noleggi';
+var currentView = 'dashboard';
+
+var filters = {anno:'all', mese:'all', tipo:'all', stato:'all', cliente:'all', search:''};
+
+// ============================================================
+// FUNZIONI DI ORDINAMENTO
+// ============================================================
+function ordinaLavoriPerData(lista) {
+  return lista.sort(function(a, b) {
+    if (a.startDate !== b.startDate) {
+      return a.startDate.localeCompare(b.startDate);
+    }
+    if (a.endDate !== b.endDate) {
+      return a.endDate.localeCompare(b.endDate);
+    }
+    return a.id - b.id;
+  });
+}
+
+function ordinaLavoriPerDataDecrescente(lista) {
+  return lista.sort(function(a, b) {
+    if (a.startDate !== b.startDate) {
+      return b.startDate.localeCompare(a.startDate);
+    }
+    if (a.endDate !== b.endDate) {
+      return b.endDate.localeCompare(a.endDate);
+    }
+    return b.id - a.id;
+  });
+}
+
+function ordinaClientiPerNome(lista) {
+  return lista.sort(function(a, b) {
+    return a.nome.localeCompare(b.nome);
+  });
+}
+
+function ordinaNoleggiPerData(lista) {
+  return lista.sort(function(a, b) {
+    if (a.startDate !== b.startDate) {
+      return a.startDate.localeCompare(b.startDate);
+    }
+    if (a.endDate !== b.endDate) {
+      return a.endDate.localeCompare(b.endDate);
+    }
+    return a.id - b.id;
+  });
+}
+
+function ordinaStrumentiPerNome(lista) {
+  return lista.sort(function(a, b) {
+    return a.nome.localeCompare(b.nome);
+  });
+}
+
+// ============================================================
+// SALVATAGGIO
+// ============================================================
+function mostraSalvato(){
+  var msg = document.getElementById('salvatoMsg');
+  msg.style.display = 'block';
+  clearTimeout(msg._timeout);
+  msg._timeout = setTimeout(function(){ msg.style.display = 'none'; }, 1200);
+}
+
+function salvaTutto(){
+  try{
+    localStorage.setItem('sl_clienti', JSON.stringify(clienti));
+    localStorage.setItem('sl_lavori', JSON.stringify(lavori));
+    localStorage.setItem('sl_noleggi', JSON.stringify(noleggi));
+    localStorage.setItem('sl_strumenti', JSON.stringify(strumenti));
+    localStorage.setItem('sl_nextId', JSON.stringify({nextId:nextId, nextCl:nextCl, nextNoleggio:nextNoleggio, nextStrumento:nextStrumento}));
+    mostraSalvato();
+  }catch(e){}
+}
+
+function caricaTutto(){
+  try{
+    var c = localStorage.getItem('sl_clienti');
+    var l = localStorage.getItem('sl_lavori');
+    var n = localStorage.getItem('sl_noleggi');
+    var s = localStorage.getItem('sl_strumenti');
+    var ids = localStorage.getItem('sl_nextId');
+    if(c){ clienti = JSON.parse(c); }
+    if(l){ lavori = JSON.parse(l); }
+    if(n){ noleggi = JSON.parse(n); }
+    if(s){ strumenti = JSON.parse(s); }
+    if(ids){ var idData = JSON.parse(ids);
+      nextId = idData.nextId || nextId;
+      nextCl = idData.nextCl || nextCl;
+      nextNoleggio = idData.nextNoleggio || nextNoleggio;
+      nextStrumento = idData.nextStrumento || nextStrumento;
+    }
+    if(clienti.length) nextCl = Math.max.apply(null, clienti.map(function(c){return c.id})) + 1;
+    if(lavori.length) nextId = Math.max.apply(null, lavori.map(function(l){return l.id})) + 1;
+    if(noleggi.length) nextNoleggio = Math.max.apply(null, noleggi.map(function(n){return n.id})) + 1;
+    if(strumenti.length) nextStrumento = Math.max.apply(null, strumenti.map(function(s){return s.id})) + 1;
+    return true;
+  }catch(e){ return false; }
+}
+
+// ============================================================
+// FUNZIONI DI BASE
+// ============================================================
+function euro(n){ return (isFinite(n)?n:0).toFixed(2); }
+
+function nettoOf(l){
+  var r = {cooperativa:25, occasionale_sostituto:20, occasionale_privato:0, netto:0};
+  return l.giorni * l.prezzoGiorno * (1 - r[l.tipoPagamento] / 100);
+}
+
+function lordoOf(l){ return l.giorni * l.prezzoGiorno; }
+
+function clienteNome(id){
+  var c = clienti.find(function(x){ return x.id === id; });
+  return c ? c.nome : 'Sconosciuto';
+}
+
+function paymentLabel(id){
+  var p = PAYMENT_TYPES.find(function(x){ return x.id === id; });
+  return p ? p.label : id;
+}
+
+function fmtPeriod(l){
+  var s = new Date(l.startDate + 'T00:00:00');
+  var e = new Date(l.endDate + 'T00:00:00');
+  var a = s.toLocaleDateString('it-IT', {day:'2-digit', month:'2-digit', year:'numeric'});
+  if(l.endDate === l.startDate) return a;
+  var same = s.getMonth() === e.getMonth() && s.getFullYear() === e.getFullYear();
+  var b = e.toLocaleDateString('it-IT', {day:'2-digit', month:'2-digit', year:'numeric'});
+  return same ? s.getDate() + '-' + b : a + ' - ' + b;
+}
+
+function calcolaGiorni(s,e){
+  if(!s || !e) return 1;
+  var d = new Date(e + 'T00:00:00') - new Date(s + 'T00:00:00');
+  return d <= 0 ? 1 : Math.floor(d / 86400000) + 1;
+}
+
+function escapeHtml(s){
+  return String(s||'').replace(/[&<>"']/g, function(m){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];
+  });
+}
+
+function getFilteredLavori() {
+  return lavori.filter(function(l){
+    var d = new Date(l.startDate + 'T00:00:00');
+    if(filters.anno !== 'all' && d.getFullYear() !== Number(filters.anno)) return false;
+    if(filters.mese !== 'all' && (d.getMonth()+1) !== Number(filters.mese)) return false;
+    if(filters.tipo !== 'all' && l.tipo !== filters.tipo) return false;
+    if(filters.stato === 'pagato' && !l.pagato) return false;
+    if(filters.stato === 'da_pagare' && l.pagato) return false;
+    if(filters.cliente !== 'all' && l.clienteId !== Number(filters.cliente)) return false;
+    if(filters.search){
+      var s = filters.search.toLowerCase();
+      var h = (l.descrizione + ' ' + l.luogo + ' ' + (l.note||'') + ' ' + clienteNome(l.clienteId)).toLowerCase();
+      if(!h.includes(s)) return false;
+    }
+    return true;
+  });
+}
+
+function getFiltered(){
+  return ordinaLavoriPerData(getFilteredLavori());
+}
+
+function getByDate(ds){
+  return ordinaLavoriPerData(lavori.filter(function(l){ return ds >= l.startDate && ds <= l.endDate; }));
+}
+
+function getNoleggiByDate(ds){
+  return ordinaNoleggiPerData(noleggi.filter(function(n){ return ds >= n.startDate && ds <= n.endDate; }));
+}
+
+function getOccStats(){
+  var occ = lavori.filter(function(l){ return l.tipoPagamento === 'occasionale_sostituto'; });
+  var tot = 0;
+  occ.forEach(function(l){ tot += lordoOf(l); });
+  return {count: occ.length, totale: tot, pct: Math.min(100, tot / OCC_LIMIT * 100) };
+}
+
+function getGiorni(mese, anno){
+  var g = {};
+  lavori.forEach(function(l){
+    var s = new Date(l.startDate + 'T00:00:00');
+    var e = new Date(l.endDate + 'T00:00:00');
+    s.setHours(0,0,0,0); e.setHours(0,0,0,0);
+    var c = new Date(s);
+    while(c <= e){
+      if(c.getMonth() === mese && c.getFullYear() === anno){
+        var key = c.getFullYear() + '-' + String(c.getMonth()+1).padStart(2,'0') + '-' + String(c.getDate()).padStart(2,'0');
+        if(!g[key]) g[key] = [];
+        g[key].push(l);
+      }
+      c.setDate(c.getDate() + 1);
+    }
+  });
+  return g;
+}
+
+function getNoleggiGiorni(mese, anno){
+  var g = {};
+  noleggi.forEach(function(n){
+    var s = new Date(n.startDate + 'T00:00:00');
+    var e = new Date(n.endDate + 'T00:00:00');
+    s.setHours(0,0,0,0); e.setHours(0,0,0,0);
+    var c = new Date(s);
+    while(c <= e){
+      if(c.getMonth() === mese && c.getFullYear() === anno){
+        var key = c.getFullYear() + '-' + String(c.getMonth()+1).padStart(2,'0') + '-' + String(c.getDate()).padStart(2,'0');
+        if(!g[key]) g[key] = [];
+        g[key].push(n);
+      }
+      c.setDate(c.getDate() + 1);
+    }
+  });
+  return g;
+}
+
+function strumentoImpegnato(nomeStrumento, data){
+  var impegnato = noleggi.some(function(n){
+    if(n.stato === 'rientrato') return false;
+    var s = new Date(n.startDate + 'T00:00:00');
+    var e = new Date(n.endDate + 'T00:00:00');
+    var d = new Date(data + 'T00:00:00');
+    s.setHours(0,0,0,0); e.setHours(0,0,0,0); d.setHours(0,0,0,0);
+    var materialeMatch = n.materiale.toLowerCase().includes(nomeStrumento.toLowerCase());
+    return materialeMatch && d >= s && d <= e;
+  });
+  return impegnato;
+}
+
+function aggiornaSelectClienti(){
+  var clientiOrdinati = ordinaClientiPerNome(clienti.slice());
+  var opts = '<option value="">Seleziona</option>';
+  clientiOrdinati.forEach(function(c){
+    opts += '<option value="' + c.id + '">' + escapeHtml(c.nome) + '</option>';
+  });
+  
+  var selectLavoro = document.getElementById('fClienteModal');
+  if(selectLavoro){
+    var valLavoro = selectLavoro.value;
+    selectLavoro.innerHTML = opts;
+    if(valLavoro && clienti.some(function(c){ return c.id == valLavoro; })){
+      selectLavoro.value = valLavoro;
+    }
+  }
+  
+  var selectNoleggio = document.getElementById('fNoleggioCliente');
+  if(selectNoleggio){
+    var valNoleggio = selectNoleggio.value;
+    selectNoleggio.innerHTML = opts;
+    if(valNoleggio && clienti.some(function(c){ return c.id == valNoleggio; })){
+      selectNoleggio.value = valNoleggio;
+    }
+  }
+  
+  var filtroCliente = document.getElementById('fClienteFilter');
+  if(filtroCliente){
+    var valFiltro = filtroCliente.value;
+    var optsFiltro = '<option value="all">Tutti i clienti</option>';
+    clientiOrdinati.forEach(function(c){ optsFiltro += '<option value="' + c.id + '">' + escapeHtml(c.nome) + '</option>'; });
+    filtroCliente.innerHTML = optsFiltro;
+    if(valFiltro && clienti.some(function(c){ return c.id == valFiltro; })){
+      filtroCliente.value = valFiltro;
+    }
+  }
+}
+
+function renderAll(){
+  popolaFiltri();
+  renderMonthStats();
+  renderDashboard();
+  renderCalendario();
+  renderLavori();
+  renderClienti();
+  renderPagamenti();
+  renderNoleggi();
+  renderStrumenti();
+  renderOccLimit();
+  salvaTutto();
+}
+
+function renderMonthStats(){
+  var lavoriFiltrati = getFilteredLavori();
+  var monthStatsDiv = document.getElementById('monthStats');
+  
+  if (filters.mese !== 'all' || filters.anno !== 'all') {
+    monthStatsDiv.classList.add('show');
+    
+    var mesi = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
+    var titolo = '📊 Statistiche';
+    if (filters.mese !== 'all' && filters.anno !== 'all') {
+      titolo += ' - ' + mesi[parseInt(filters.mese)-1] + ' ' + filters.anno;
+    } else if (filters.anno !== 'all') {
+      titolo += ' - ' + filters.anno;
+    } else if (filters.mese !== 'all') {
+      titolo += ' - ' + mesi[parseInt(filters.mese)-1];
+    }
+    document.getElementById('monthStatsTitle').textContent = titolo;
+    
+    var t = {lordo:0, netto:0, daRicevere:0};
+    lavoriFiltrati.forEach(function(l){
+      t.lordo += lordoOf(l);
+      t.netto += nettoOf(l);
+      if(!l.pagato) t.daRicevere += nettoOf(l);
+    });
+    
+    document.getElementById('msLavori').textContent = lavoriFiltrati.length;
+    document.getElementById('msLordo').textContent = '€' + euro(t.lordo);
+    document.getElementById('msNetto').textContent = '€' + euro(t.netto);
+    document.getElementById('msDaRicevere').textContent = '€' + euro(t.daRicevere);
+  } else {
+    monthStatsDiv.classList.remove('show');
+  }
+}
+
+function renderOccLimit(){
+  var s = getOccStats();
+  document.getElementById('occCount').textContent = s.count + ' lavori';
+  document.getElementById('occVal').textContent = '€' + euro(s.totale);
+  document.getElementById('occPct').textContent = Math.round(s.pct) + '%';
+  var bar = document.getElementById('occBar');
+  bar.style.width = s.pct + '%';
+  bar.className = 'fill' + (s.pct > 90 ? ' danger' : s.pct > 70 ? ' warning' : '');
+  var v = document.getElementById('occVal');
+  v.className = 'val' + (s.pct > 90 ? ' danger' : s.pct > 70 ? ' warning' : ' ok');
+}
+
+function popolaFiltri(){
+  var anni = [];
+  lavori.forEach(function(l){
+    var y = new Date(l.startDate + 'T00:00:00').getFullYear();
+    if(anni.indexOf(y) === -1) anni.push(y);
+  });
+  anni.sort(function(a,b){ return b - a; });
+  var cur = new Date().getFullYear();
+  if(anni.indexOf(cur) === -1) anni.unshift(cur);
+  
+  var aSel = document.getElementById('fAnno');
+  aSel.innerHTML = '<option value="all">Anno</option>';
+  anni.forEach(function(y){ aSel.innerHTML += '<option value="' + y + '">' + y + '</option>'; });
+  if(anni.indexOf(Number(filters.anno)) !== -1) aSel.value = filters.anno;
+  else aSel.value = cur;
+  filters.anno = aSel.value;
+  
+  var mesi = ['Gen','Feb','Mar','Apr','Mag','Giu','Lug','Ago','Set','Ott','Nov','Dic'];
+  var mSel = document.getElementById('fMese');
+  mSel.innerHTML = '<option value="all">Mese</option>';
+  mesi.forEach(function(m,i){ mSel.innerHTML += '<option value="' + (i+1) + '">' + m + '</option>'; });
+  mSel.value = filters.mese;
+  
+  var tSel = document.getElementById('fTipo');
+  tSel.innerHTML = '<option value="all">Tipo</option>';
+  TIPI.forEach(function(t){ tSel.innerHTML += '<option value="' + t + '">' + t + '</option>'; });
+  tSel.value = filters.tipo;
+}
+
+function popolaCalendarioSelect(){
+  var monthSel = document.getElementById('calMonthSelect');
+  var mesi = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
+  monthSel.innerHTML = '';
+  mesi.forEach(function(m,i){ monthSel.innerHTML += '<option value="' + i + '">' + m + '</option>'; });
+  monthSel.value = calMonth;
+  
+  var yearSel = document.getElementById('calYearSelect');
+  var annoCorrente = new Date().getFullYear();
+  yearSel.innerHTML = '';
+  for(var y = annoCorrente - 5; y <= annoCorrente + 5; y++){
+    yearSel.innerHTML += '<option value="' + y + '">' + y + '</option>';
+  }
+  yearSel.value = calYear;
+}
+
+function renderDashboard(){
+  var list = ordinaLavoriPerDataDecrescente(getFiltered().slice(0,10));
+  var c = document.getElementById('dashTable');
+  document.getElementById('dashCount').textContent = list.length;
+  if(!list.length){ c.innerHTML = '<div class="empty">📭 Nessun lavoro</div>'; return; }
+  var html = '<table><thead><tr><th>Cliente</th><th>Descrizione</th><th>Periodo</th><th>Tipo</th><th style="text-align:right">Netto</th><th>Stato</th></tr></thead><tbody>';
+  list.forEach(function(l){
+    html += '<tr><td><strong>' + clienteNome(l.clienteId) + '</strong></td><td>' + escapeHtml(l.descrizione) + '</td><td>' + fmtPeriod(l) + '</td><td><span class="tag">' + escapeHtml(l.tipo) + '</span></td><td class="num net">€' + euro(nettoOf(l)) + '</td><td><span class="badge ' + (l.pagato ? 'badge-success' : 'badge-warning') + '">' + (l.pagato ? '✅ Pagato' : '⏳ Da pagare') + '</span></td></tr>';
+  });
+  html += '</tbody></table>';
+  c.innerHTML = html;
+}
+
+function renderCalendario(){
+  var grid = document.getElementById('calGrid');
+  var months = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
+  document.getElementById('calTitle').textContent = months[calMonth] + ' ' + calYear;
+  popolaCalendarioSelect();
+  
+  var first = new Date(calYear, calMonth, 1).getDay();
+  var days = new Date(calYear, calMonth + 1, 0).getDate();
+  var today = new Date(); today.setHours(0,0,0,0);
+  var tStr = today.getFullYear() + '-' + String(today.getMonth()+1).padStart(2,'0') + '-' + String(today.getDate()).padStart(2,'0');
+  var giorni = getGiorni(calMonth, calYear);
+  var giorniNoleggi = getNoleggiGiorni(calMonth, calYear);
+  var names = ['Dom','Lun','Mar','Mer','Gio','Ven','Sab'];
+  
+  var html = '';
+  names.forEach(function(d){ html += '<div style="text-align:center;font-size:10px;color:#888;padding:4px 0;font-weight:bold">' + d + '</div>'; });
+  for(var i=0; i<first; i++){ html += '<div class="cal-cell empty"></div>'; }
+  for(var d=1; d<=days; d++){
+    var date = new Date(calYear, calMonth, d); date.setHours(0,0,0,0);
+    var ds = date.getFullYear() + '-' + String(date.getMonth()+1).padStart(2,'0') + '-' + String(date.getDate()).padStart(2,'0');
+    var isToday = ds === tStr;
+    var busy = giorni[ds] && giorni[ds].length > 0;
+    var busyNoleggio = giorniNoleggi[ds] && giorniNoleggi[ds].length > 0;
+    var cls = 'cal-cell';
+    if(isToday) cls += ' today';
+    if(busy || busyNoleggio) cls += ' busy';
+    var dot = '';
+    if(busy) dot += '<div class="dot" style="background:#e8a33d"></div>';
+    if(busyNoleggio) dot += '<div class="dot" style="background:#7ca8e8;margin-top:2px"></div>';
+    var cnt = '';
+    if(busy) cnt += '<div class="count" style="color:#e8a33d">' + giorni[ds].length + 'L</div>';
+    if(busyNoleggio) cnt += '<div class="count" style="color:#7ca8e8">' + giorniNoleggi[ds].length + 'N</div>';
+    html += '<div class="' + cls + '" data-date="' + ds + '"><div class="num">' + d + '</div>' + cnt + dot + '</div>';
+  }
+  grid.innerHTML = html;
+}
+
+function renderLavori(){
+  var c = document.getElementById('lavTable');
+  var lavoriFiltrati = getFilteredLavori();
+  
+  var lavoriPerCliente = {};
+  lavoriFiltrati.forEach(function(l){
+    if(!lavoriPerCliente[l.clienteId]) {
+      lavoriPerCliente[l.clienteId] = [];
+    }
+    lavoriPerCliente[l.clienteId].push(l);
+  });
+  
+  var clientiConLavori = Object.keys(lavoriPerCliente);
+  var totaleLavori = lavoriFiltrati.length;
+  document.getElementById('lavCount').textContent = totaleLavori + ' lavori';
+  
+  if(!totaleLavori){ 
+    c.innerHTML = '<div class="empty">📭 Nessun lavoro</div>'; 
+    return; 
+  }
+  
+  var html = '';
+  var clientiOrdinati = ordinaClientiPerNome(clienti.slice());
+  
+  clientiOrdinati.forEach(function(cl){
+    var lvs = lavoriPerCliente[cl.id] || [];
+    if(lvs.length === 0) return;
+    
+    lvs = ordinaLavoriPerData(lvs);
+    var totNetto = 0;
+    lvs.forEach(function(l){ totNetto += nettoOf(l); });
+    var daPagare = lvs.filter(function(l){ return !l.pagato; }).length;
+    
+    var isOpen = openLavoriClients.has(cl.id);
+    html += '<div class="lavoro-card' + (isOpen ? ' open' : '') + '">';
+    html += '<div class="lavoro-head" onclick="toggleLavoroCliente(' + cl.id + ')">';
+    html += '<span class="nome">' + escapeHtml(cl.nome) + '</span>';
+    html += '<span class="meta">' + lvs.length + ' lavori · ' + daPagare + ' da pagare · <span class="net">€' + euro(totNetto) + ' netto</span> <span class="caret">▶</span>';
+    html += '</div>';
+    html += '<div class="lavoro-body">';
+    html += '<table><thead><tr><th>Periodo</th><th>Descrizione</th><th>Luogo</th><th>Giorni</th><th style="text-align:right">Lordo</th><th style="text-align:right">Netto</th><th>Tipo</th><th>Stato</th><th>Azioni</th></tr></thead><tbody>';
+    lvs.forEach(function(l){
+      var tipoLabel = paymentLabel(l.tipoPagamento);
+      var tagClass = l.tipoPagamento === 'cooperativa' ? ' tag amber' : l.tipoPagamento === 'occasionale_sostituto' ? ' tag blue' : '';
+      html += '<tr><td>' + fmtPeriod(l) + '</td><td>' + escapeHtml(l.descrizione) + '</td><td>' + (l.luogo || '-') + '</td><td>' + l.giorni + '</td><td class="num lordo">€' + euro(lordoOf(l)) + '</td><td class="num net">€' + euro(nettoOf(l)) + '</td><td><span class="tag' + tagClass + '">' + tipoLabel + '</span></td><td><span class="badge ' + (l.pagato ? 'badge-success' : 'badge-warning') + '">' + (l.pagato ? '✅ Pagato' : '⏳ Da pagare') + '</span></td><td><button class="btn btn-ghost btn-sm" onclick="apriModalLavoro(' + l.id + ')">✎</button> <button class="btn btn-ghost btn-sm" onclick="togglePagato(' + l.id + ')">💰</button> <button class="btn btn-danger btn-sm" onclick="eliminaLavoro(' + l.id + ')">🗑</button></td></tr>';
+    });
+    html += '</tbody></table>';
+    html += '</div></div>';
+  });
+  
+  c.innerHTML = html;
+}
+
+function toggleLavoroCliente(id){
+  if(openLavoriClients.has(id)) openLavoriClients.delete(id);
+  else openLavoriClients.add(id);
+  renderLavori();
+}
+
+function renderClienti(){
+  var c = document.getElementById('clientiList');
+  document.getElementById('clientiCount').textContent = clienti.length;
+  if(!clienti.length){ c.innerHTML = '<div class="empty">👤 Nessun cliente in rubrica</div>'; return; }
+  var clientiOrdinati = ordinaClientiPerNome(clienti.slice());
+  var html = '';
+  clientiOrdinati.forEach(function(cl){
+    html += '<div class="client-card" style="margin-bottom:8px">';
+    html += '<div class="client-head" style="cursor:default;background:#2a2a3e;padding:10px 14px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px">';
+    html += '<span class="nome">' + escapeHtml(cl.nome) + '</span>';
+    html += '<span class="meta">';
+    if(cl.email) html += '📧 ' + escapeHtml(cl.email) + ' ';
+    if(cl.telefono) html += '📱 ' + escapeHtml(cl.telefono);
+    html += ' <button class="btn btn-ghost btn-sm" onclick="apriModalCliente(' + cl.id + ')" style="margin-left:8px">✎</button>';
+    html += ' <button class="btn btn-danger btn-sm" onclick="eliminaCliente(' + cl.id + ')">🗑</button>';
+    html += '</span>';
+    html += '</div>';
+    html += '</div>';
+  });
+  c.innerHTML = html;
+}
+
+function renderPagamenti(){
+  var list = lavori.filter(function(l){ return !l.pagato; });
+  list = ordinaLavoriPerData(list);
+  var c = document.getElementById('pagTable');
+  if(!list.length){ c.innerHTML = '<div class="empty">🎉 Tutti pagati!</div>'; return; }
+  var html = '<table><thead><tr><th>Cliente</th><th>Descrizione</th><th>Periodo</th><th style="text-align:right">Lordo</th><th style="text-align:right">Netto</th><th>Tipo</th><th>Azioni</th></tr></thead><tbody>';
+  list.forEach(function(l){
+    var r = {cooperativa:25, occasionale_sostituto:20, occasionale_privato:0, netto:0};
+    var ritenuta = r[l.tipoPagamento] || 0;
+    var tipoLabel = paymentLabel(l.tipoPagamento);
+    html += '<tr><td><strong>' + clienteNome(l.clienteId) + '</strong></td><td>' + escapeHtml(l.descrizione) + '</td><td>' + fmtPeriod(l) + '</td><td class="num lordo">€' + euro(lordoOf(l)) + '</td><td class="num net">€' + euro(nettoOf(l)) + '<span style="font-size:9px;color:#888;display:block">rit. ' + ritenuta + '%</span></td><td><span class="tag">' + tipoLabel + '</span></td><td><button class="btn btn-success btn-sm" onclick="ricevuto(' + l.id + ')">💰 Ricevuto</button> <button class="btn btn-danger btn-sm" onclick="eliminaLavoro(' + l.id + ')">🗑</button></td></tr>';
+  });
+  html += '</tbody></table>';
+  c.innerHTML = html;
+}
+
+function renderNoleggi(){
+  if(noleggiSubTab !== 'noleggi') return;
+  var c = document.getElementById('noleggiTable');
+  if(!noleggi.length){ c.innerHTML = '<div class="empty">📦 Nessun noleggio registrato</div>'; return; }
+  var noleggiOrdinati = ordinaNoleggiPerData(noleggi.slice());
+  var html = '<table><thead><tr><th>Cliente</th><th>Materiale</th><th>Periodo</th><th>Descrizione</th><th style="text-align:right">Prezzo</th><th>Stato</th><th>Azioni</th></tr></thead><tbody>';
+  noleggiOrdinati.forEach(function(n){
+    var statoLabel = n.stato === 'da_rientrare' ? '📤 Da rientrare' : '📥 Rientrato';
+    var statoClass = n.stato === 'da_rientrare' ? 'badge-warning' : 'badge-success';
+    html += '<tr><td><strong>' + clienteNome(n.clienteId) + '</strong></td><td>' + escapeHtml(n.materiale) + '</td><td>' + fmtPeriod(n) + '</td><td>' + escapeHtml(n.descrizione) + '</td><td class="num">€' + euro(n.prezzo || 0) + '</td><td><span class="badge ' + statoClass + '">' + statoLabel + '</span></td><td><button class="btn btn-ghost btn-sm" onclick="apriModalNoleggio(' + n.id + ')">✎</button> <button class="btn btn-ghost btn-sm" onclick="toggleNoleggio(' + n.id + ')">🔄</button> <button class="btn btn-danger btn-sm" onclick="eliminaNoleggio(' + n.id + ')">🗑</button></td></tr>';
+  });
+  html += '</tbody></table>';
+  c.innerHTML = html;
+}
+
+function renderStrumenti(){
+  if(noleggiSubTab !== 'strumenti') return;
+  var c = document.getElementById('strumentiTable');
+  if(!strumenti.length){ c.innerHTML = '<div class="empty">🎛️ Nessuno strumento registrato</div>'; return; }
+  var strumentiOrdinati = ordinaStrumentiPerNome(strumenti.slice());
+  var oggi = new Date().toISOString().slice(0,10);
+  var html = '<table><thead><tr><th>Nome</th><th>Categoria</th><th>Seriale</th><th>Stato</th><th>Note</th><th>Azioni</th></tr></thead><tbody>';
+  strumentiOrdinati.forEach(function(s){
+    var impegnato = strumentoImpegnato(s.nome, oggi);
+    var statoLabel = impegnato ? '🔴 Impegnato' : '🟢 Libero';
+    var statoClass = impegnato ? 'badge-danger' : 'badge-success';
+    html += '<tr><td><strong>' + escapeHtml(s.nome) + '</strong></td><td>' + escapeHtml(s.categoria || '-') + '</td><td>' + escapeHtml(s.seriale || '-') + '</td><td><span class="badge ' + statoClass + '">' + statoLabel + '</span></td><td>' + escapeHtml(s.note || '-') + '</td><td><button class="btn btn-ghost btn-sm" onclick="apriModalStrumento(' + s.id + ')">✎</button> <button class="btn btn-danger btn-sm" onclick="eliminaStrumento(' + s.id + ')">🗑</button></td></tr>';
+  });
+  html += '</tbody></table>';
+  c.innerHTML = html;
+}
+
+function togglePagato(id){
+  var l = lavori.find(function(x){ return x.id === id; });
+  if(l){ l.pagato = !l.pagato; renderAll(); }
+}
+
+function ricevuto(id){
+  var l = lavori.find(function(x){ return x.id === id; });
+  if(l){ l.pagato = true; renderAll(); }
+}
+
+function eliminaLavoro(id){
+  if(confirm('Eliminare questo lavoro?')){
+    lavori = lavori.filter(function(l){ return l.id !== id; });
+    renderAll();
+  }
+}
+
+function eliminaCliente(id){
+  if(confirm('Eliminare questo cliente?')){
+    clienti = clienti.filter(function(c){ return c.id !== id; });
+    renderAll();
+  }
+}
+
+function toggleNoleggio(id){
+  var n = noleggi.find(function(x){ return x.id === id; });
+  if(n){ n.stato = n.stato === 'da_rientrare' ? 'rientrato' : 'da_rientrare'; renderAll(); }
+}
+
+function eliminaNoleggio(id){
+  if(confirm('Eliminare questo noleggio?')){
+    noleggi = noleggi.filter(function(n){ return n.id !== id; });
+    renderAll();
+  }
+}
+
+function eliminaStrumento(id){
+  if(confirm('Eliminare questo strumento?')){
+    strumenti = strumenti.filter(function(s){ return s.id !== id; });
+    renderAll();
+  }
+}
+
+function apriModalLavoro(id){
+  aggiornaSelectClienti();
+  
+  var isEdit = id && id > 0;
+  
+  document.getElementById('fTipoLav').innerHTML = '';
+  TIPI.forEach(function(t){ document.getElementById('fTipoLav').innerHTML += '<option value="' + t + '">' + t + '</option>'; });
+  
+  document.getElementById('fTipoPag').innerHTML = '';
+  PAYMENT_TYPES.forEach(function(p){ document.getElementById('fTipoPag').innerHTML += '<option value="' + p.id + '">' + p.label + '</option>'; });
+  
+  if(isEdit){
+    var l = lavori.find(function(x){ return x.id === id; });
+    if(!l) return;
+    document.getElementById('mTitle').textContent = 'Modifica lavoro';
+    document.getElementById('btnDel').style.display = 'inline-block';
+    document.getElementById('mId').value = l.id;
+    document.getElementById('fStart').value = l.startDate;
+    document.getElementById('fEnd').value = l.endDate;
+    document.getElementById('fClienteModal').value = l.clienteId;
+    document.getElementById('fTipoLav').value = l.tipo;
+    document.getElementById('fTipoPag').value = l.tipoPagamento;
+    document.getElementById('fLuogo').value = l.luogo || '';
+    document.getElementById('fPrezzo').value = l.prezzoGiorno;
+    document.getElementById('fNote').value = l.note || '';
+  } else {
+    document.getElementById('mTitle').textContent = 'Nuovo lavoro';
+    document.getElementById('btnDel').style.display = 'none';
+    document.getElementById('mId').value = '';
+    var t = new Date().toISOString().slice(0,10);
+    document.getElementById('fStart').value = t;
+    document.getElementById('fEnd').value = t;
+    document.getElementById('fClienteModal').value = '';
+    document.getElementById('fTipoLav').value = TIPI[0] || '';
+    document.getElementById('fTipoPag').value = 'cooperativa';
+    document.getElementById('fLuogo').value = '';
+    document.getElementById('fPrezzo').value = '';
+    document.getElementById('fNote').value = '';
+  }
+  aggiornaGiorni();
+  aggiornaNetto();
+  document.getElementById('mModal').classList.add('show');
+}
+
+function apriModalCliente(id){
+  var isEdit = id && id > 0;
+  var modal = document.getElementById('mCliente');
+  var title = document.getElementById('mClienteTitle');
+  var btnDel = document.getElementById('btnDelCliente');
+  
+  if(isEdit){
+    var c = clienti.find(function(x){ return x.id === id; });
+    if(!c) return;
+    title.textContent = 'Modifica cliente';
+    btnDel.style.display = 'inline-block';
+    document.getElementById('clienteId').value = c.id;
+    document.getElementById('fClienteNome').value = c.nome;
+    document.getElementById('fClienteEmail').value = c.email || '';
+    document.getElementById('fClienteTel').value = c.telefono || '';
+  } else {
+    title.textContent = 'Nuovo cliente';
+    btnDel.style.display = 'none';
+    document.getElementById('clienteId').value = '';
+    document.getElementById('fClienteNome').value = '';
+    document.getElementById('fClienteEmail').value = '';
+    document.getElementById('fClienteTel').value = '';
+  }
+  modal.classList.add('show');
+}
+
+function apriModalNoleggio(id){
+  aggiornaSelectClienti();
+  
+  var isEdit = id && id > 0;
+  
+  if(isEdit){
+    var n = noleggi.find(function(x){ return x.id === id; });
+    if(!n) return;
+    document.getElementById('mNoleggioTitle').textContent = 'Modifica noleggio';
+    document.getElementById('btnDelNoleggio').style.display = 'inline-block';
+    document.getElementById('noleggioId').value = n.id;
+    document.getElementById('fNoleggioStart').value = n.startDate;
+    document.getElementById('fNoleggioEnd').value = n.endDate;
+    document.getElementById('fNoleggioCliente').value = n.clienteId;
+    document.getElementById('fNoleggioMateriale').value = n.materiale;
+    document.getElementById('fNoleggioDesc').value = n.descrizione || '';
+    document.getElementById('fNoleggioPrezzo').value = n.prezzo || '';
+    document.getElementById('fNoleggioStato').value = n.stato;
+  } else {
+    document.getElementById('mNoleggioTitle').textContent = 'Nuovo noleggio';
+    document.getElementById('btnDelNoleggio').style.display = 'none';
+    document.getElementById('noleggioId').value = '';
+    var t = new Date().toISOString().slice(0,10);
+    document.getElementById('fNoleggioStart').value = t;
+    document.getElementById('fNoleggioEnd').value = t;
+    document.getElementById('fNoleggioCliente').value = '';
+    document.getElementById('fNoleggioMateriale').value = '';
+    document.getElementById('fNoleggioDesc').value = '';
+    document.getElementById('fNoleggioPrezzo').value = '';
+    document.getElementById('fNoleggioStato').value = 'da_rientrare';
+  }
+  document.getElementById('mNoleggio').classList.add('show');
+}
+
+function apriModalStrumento(id){
+  var isEdit = id && id > 0;
+  var modal = document.getElementById('mStrumento');
+  var title = document.getElementById('mStrumentoTitle');
+  var btnDel = document.getElementById('btnDelStrumento');
+  
+  if(isEdit){
+    var s = strumenti.find(function(x){ return x.id === id; });
+    if(!s) return;
+    title.textContent = 'Modifica strumento';
+    btnDel.style.display = 'inline-block';
+    document.getElementById('strumentoId').value = s.id;
+    document.getElementById('fStrumentoNome').value = s.nome;
+    document.getElementById('fStrumentoCategoria').value = s.categoria || '';
+    document.getElementById('fStrumentoSeriale').value = s.seriale || '';
+    document.getElementById('fStrumentoNote').value = s.note || '';
+  } else {
+    title.textContent = 'Nuovo strumento';
+    btnDel.style.display = 'none';
+    document.getElementById('strumentoId').value = '';
+    document.getElementById('fStrumentoNome').value = '';
+    document.getElementById('fStrumentoCategoria').value = '';
+    document.getElementById('fStrumentoSeriale').value = '';
+    document.getElementById('fStrumentoNote').value = '';
+  }
+  modal.classList.add('show');
+}
+
+document.getElementById('btnNuovoLavoro').addEventListener('click', function(){ apriModalLavoro(null); });
+document.getElementById('btnNuovoCliente').addEventListener('click', function(){ apriModalCliente(null); });
+document.getElementById('btnNuovoNoleggio').addEventListener('click', function(){ apriModalNoleggio(null); });
+document.getElementById('btnNuovoNoleggio2').addEventListener('click', function(){ apriModalNoleggio(null); });
+document.getElementById('btnNuovoStrumento').addEventListener('click', function(){ apriModalStrumento(null); });
+
+document.getElementById('btnAnnulla').addEventListener('click', function(){ document.getElementById('mModal').classList.remove('show'); });
+document.getElementById('btnAnnullaCliente').addEventListener('click', function(){ document.getElementById('mCliente').classList.remove('show'); });
+document.getElementById('btnAnnullaNoleggio').addEventListener('click', function(){ document.getElementById('mNoleggio').classList.remove('show'); });
+document.getElementById('btnAnnullaStrumento').addEventListener('click', function(){ document.getElementById('mStrumento').classList.remove('show'); });
+
+document.getElementById('mModal').addEventListener('click', function(e){ if(e.target === this) this.classList.remove('show'); });
+document.getElementById('mCliente').addEventListener('click', function(e){ if(e.target === this) this.classList.remove('show'); });
+document.getElementById('mNoleggio').addEventListener('click', function(e){ if(e.target === this) this.classList.remove('show'); });
+document.getElementById('mStrumento').addEventListener('click', function(e){ if(e.target === this) this.classList.remove('show'); });
+
+document.getElementById('btnSalva').addEventListener('click', function(){
+  var id = document.getElementById('mId').value;
+  var clId = Number(document.getElementById('fClienteModal').value);
+  if(!clId){ alert('Seleziona un cliente'); return; }
+  var p = Number(document.getElementById('fPrezzo').value);
+  var s = document.getElementById('fStart').value;
+  var e = document.getElementById('fEnd').value;
+  if(!s){ alert('Inserisci data inizio'); return; }
+  if(!e || e < s) e = s;
+  if(!p || p <= 0){ alert('Inserisci un prezzo valido'); return; }
+  var g = calcolaGiorni(s,e);
+  var cliente = clienti.find(function(c){ return c.id === clId; });
+  var data = {
+    id: id ? Number(id) : nextId++,
+    clienteId: clId,
+    descrizione: cliente ? cliente.nome + ' - ' + (document.getElementById('fNote').value.trim() || 'Lavoro') : 'Lavoro',
+    tipo: document.getElementById('fTipoLav').value,
+    tipoPagamento: document.getElementById('fTipoPag').value,
+    luogo: document.getElementById('fLuogo').value.trim(),
+    giorni: g,
+    prezzoGiorno: p,
+    startDate: s,
+    endDate: e,
+    note: document.getElementById('fNote').value.trim(),
+    pagato: false
+  };
+  if(id){ var idx = lavori.findIndex(function(l){ return l.id === Number(id); }); if(idx !== -1) lavori[idx] = data; } else { lavori.push(data); }
+  document.getElementById('mModal').classList.remove('show');
+  renderAll();
+});
+
+document.getElementById('btnDel').addEventListener('click', function(){
+  var id = Number(document.getElementById('mId').value);
+  if(!confirm('Eliminare questo lavoro?')) return;
+  lavori = lavori.filter(function(l){ return l.id !== id; });
+  document.getElementById('mModal').classList.remove('show');
+  renderAll();
+});
+
+document.getElementById('btnSalvaCliente').addEventListener('click', function(){
+  var id = document.getElementById('clienteId').value;
+  var nome = document.getElementById('fClienteNome').value.trim();
+  if(!nome){ alert('Inserisci il nome'); return; }
+  var data = {
+    id: id ? Number(id) : nextCl++,
+    nome: nome,
+    email: document.getElementById('fClienteEmail').value.trim(),
+    telefono: document.getElementById('fClienteTel').value.trim()
+  };
+  if(id){ var idx = clienti.findIndex(function(c){ return c.id === Number(id); }); if(idx !== -1) clienti[idx] = data; } else { clienti.push(data); }
+  document.getElementById('mCliente').classList.remove('show');
+  aggiornaSelectClienti();
+  renderAll();
+});
+
+document.getElementById('btnDelCliente').addEventListener('click', function(){
+  var id = Number(document.getElementById('clienteId').value);
+  if(!confirm('Eliminare questo cliente?')) return;
+  clienti = clienti.filter(function(c){ return c.id !== id; });
+  document.getElementById('mCliente').classList.remove('show');
+  aggiornaSelectClienti();
+  renderAll();
+});
+
+document.getElementById('btnSalvaNoleggio').addEventListener('click', function(){
+  var id = document.getElementById('noleggioId').value;
+  var clId = Number(document.getElementById('fNoleggioCliente').value);
+  if(!clId){ alert('Seleziona un cliente'); return; }
+  var s = document.getElementById('fNoleggioStart').value;
+  var e = document.getElementById('fNoleggioEnd').value;
+  if(!s){ alert('Inserisci data uscita'); return; }
+  if(!e || e < s) e = s;
+  var materiale = document.getElementById('fNoleggioMateriale').value.trim();
+  if(!materiale){ alert('Inserisci il materiale'); return; }
+  var data = {
+    id: id ? Number(id) : nextNoleggio++,
+    clienteId: clId,
+    materiale: materiale,
+    descrizione: document.getElementById('fNoleggioDesc').value.trim(),
+    startDate: s,
+    endDate: e,
+    prezzo: Number(document.getElementById('fNoleggioPrezzo').value) || 0,
+    stato: document.getElementById('fNoleggioStato').value
+  };
+  if(id){ var idx = noleggi.findIndex(function(n){ return n.id === Number(id); }); if(idx !== -1) noleggi[idx] = data; } else { noleggi.push(data); }
+  document.getElementById('mNoleggio').classList.remove('show');
+  renderAll();
+});
+
+document.getElementById('btnDelNoleggio').addEventListener('click', function(){
+  var id = Number(document.getElementById('noleggioId').value);
+  if(!confirm('Eliminare questo noleggio?')) return;
+  noleggi = noleggi.filter(function(n){ return n.id !== id; });
+  document.getElementById('mNoleggio').classList.remove('show');
+  renderAll();
+});
+
+document.getElementById('btnSalvaStrumento').addEventListener('click', function(){
+  var id = document.getElementById('strumentoId').value;
+  var nome = document.getElementById('fStrumentoNome').value.trim();
+  if(!nome){ alert('Inserisci il nome dello strumento'); return; }
+  var data = {
+    id: id ? Number(id) : nextStrumento++,
+    nome: nome,
+    categoria: document.getElementById('fStrumentoCategoria').value.trim(),
+    seriale: document.getElementById('fStrumentoSeriale').value.trim(),
+    note: document.getElementById('fStrumentoNote').value.trim()
+  };
+  if(id){ var idx = strumenti.findIndex(function(s){ return s.id === Number(id); }); if(idx !== -1) strumenti[idx] = data; } else { strumenti.push(data); }
+  document.getElementById('mStrumento').classList.remove('show');
+  renderAll();
+});
+
+document.getElementById('btnDelStrumento').addEventListener('click', function(){
+  var id = Number(document.getElementById('strumentoId').value);
+  if(!confirm('Eliminare questo strumento?')) return;
+  strumenti = strumenti.filter(function(s){ return s.id !== id; });
+  document.getElementById('mStrumento').classList.remove('show');
+  renderAll();
+});
+
+document.getElementById('fStart').addEventListener('change', function(){
+  var e = document.getElementById('fEnd');
+  if(!e.value || e.value < this.value) e.value = this.value;
+  aggiornaGiorni();
+  aggiornaNetto();
+});
+document.getElementById('fEnd').addEventListener('change', function(){
+  var s = document.getElementById('fStart');
+  if(this.value < s.value) this.value = s.value;
+  aggiornaGiorni();
+  aggiornaNetto();
+});
+document.getElementById('fPrezzo').addEventListener('input', aggiornaNetto);
+document.getElementById('fTipoPag').addEventListener('change', aggiornaNetto);
+
+function aggiornaGiorni(){
+  var s = document.getElementById('fStart').value;
+  var e = document.getElementById('fEnd').value;
+  document.getElementById('giorniCount').textContent = calcolaGiorni(s,e);
+}
+
+function aggiornaNetto(){
+  var s = document.getElementById('fStart').value;
+  var e = document.getElementById('fEnd').value;
+  var g = s && e ? calcolaGiorni(s,e) : 1;
+  var p = Number(document.getElementById('fPrezzo').value) || 0;
+  var tipo = document.getElementById('fTipoPag').value;
+  var rate = {cooperativa:25, occasionale_sostituto:20, occasionale_privato:0, netto:0};
+  var netto = g * p * (1 - rate[tipo] / 100);
+  document.getElementById('fNetPreview').value = netto > 0 ? '€' + euro(netto) : '';
+}
+
+document.querySelectorAll('.subtab').forEach(function(tab){
+  tab.addEventListener('click', function(){
+    document.querySelectorAll('.subtab').forEach(function(t){ t.classList.remove('active'); });
+    this.classList.add('active');
+    noleggiSubTab = this.dataset.sub;
+    if(noleggiSubTab === 'noleggi'){
+      document.getElementById('noleggiSubContent').style.display = 'block';
+      document.getElementById('strumentiSubContent').style.display = 'none';
+      renderNoleggi();
+    } else {
+      document.getElementById('noleggiSubContent').style.display = 'none';
+      document.getElementById('strumentiSubContent').style.display = 'block';
+      renderStrumenti();
+    }
+  });
+});
+
+document.getElementById('fAnno').addEventListener('change', function(e){ filters.anno = e.target.value; renderAll(); });
+document.getElementById('fMese').addEventListener('change', function(e){ filters.mese = e.target.value; renderAll(); });
+document.getElementById('fTipo').addEventListener('change', function(e){ filters.tipo = e.target.value; renderAll(); });
+document.getElementById('fStato').addEventListener('change', function(e){ filters.stato = e.target.value; renderAll(); });
+document.getElementById('fClienteFilter').addEventListener('change', function(e){ filters.cliente = e.target.value; renderAll(); });
+document.getElementById('fSearch').addEventListener('input', function(e){ filters.search = e.target.value; renderAll(); });
+document.getElementById('btnAzzera').addEventListener('click', function(){
+  filters = {anno: filters.anno, mese: 'all', tipo: 'all', stato: 'all', cliente: 'all', search: ''};
+  document.getElementById('fSearch').value = '';
+  renderAll();
+});
+
+document.querySelectorAll('.tab').forEach(function(tab){
+  tab.addEventListener('click', function(){
+    document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); });
+    this.classList.add('active');
+    currentView = this.dataset.view;
+    document.querySelectorAll('[id^="view-"]').forEach(function(el){ el.style.display = 'none'; });
+    document.getElementById('view-' + currentView).style.display = 'block';
+    if(currentView === 'dashboard') renderDashboard();
+    else if(currentView === 'calendario'){ renderCalendario(); renderOccLimit(); }
+    else if(currentView === 'lavori') renderLavori();
+    else if(currentView === 'clienti') renderClienti();
+    else if(currentView === 'pagamenti') renderPagamenti();
+    else if(currentView === 'noleggi'){ renderNoleggi(); renderStrumenti(); }
+  });
+});
+
+document.getElementById('calMonthSelect').addEventListener('change', function(){ calMonth = parseInt(this.value); renderCalendario(); });
+document.getElementById('calYearSelect').addEventListener('change', function(){ calYear = parseInt(this.value); renderCalendario(); });
+document.getElementById('calPrev').addEventListener('click', function(){ calMonth--; if(calMonth < 0){ calMonth = 11; calYear--; } renderCalendario(); });
+document.getElementById('calNext').addEventListener('click', function(){ calMonth++; if(calMonth > 11){ calMonth = 0; calYear++; } renderCalendario(); });
+document.getElementById('calToday').addEventListener('click', function(){ var n = new Date(); calMonth = n.getMonth(); calYear = n.getFullYear(); renderCalendario(); });
+
+document.addEventListener('click', function(e){
+  var cell = e.target.closest('.cal-cell:not(.empty)');
+  if(cell && cell.dataset.date){
+    var ds = cell.dataset.date;
+    var lv = getByDate(ds);
+    var nv = getNoleggiByDate(ds);
+    
+    var cont = document.getElementById('calDetail');
+    document.getElementById('calDetailTitle').textContent = '📅 ' + new Date(ds + 'T00:00:00').toLocaleDateString('it-IT', {weekday:'long', day:'numeric', month:'long', year:'numeric'}) + ' - Lavori';
+    var list = document.getElementById('calDetailList');
+    if(!lv.length){ list.innerHTML = '<div class="empty">📭 Nessun lavoro</div>'; }
+    else {
+      var html2 = '<table><thead><tr><th>Cliente</th><th>Descrizione</th><th style="text-align:right">Netto</th><th>Stato</th></tr></thead><tbody>';
+      lv.forEach(function(l){
+        html2 += '<tr><td><strong>' + clienteNome(l.clienteId) + '</strong></td><td>' + escapeHtml(l.descrizione) + '</td><td class="num net">€' + euro(nettoOf(l)) + '</td><td><span class="badge ' + (l.pagato ? 'badge-success' : 'badge-warning') + '">' + (l.pagato ? '✅ Pagato' : '⏳ Da pagare') + '</span></td></tr>';
+      });
+      html2 += '</tbody></table>';
+      list.innerHTML = html2;
+    }
+    cont.style.display = 'block';
+    
+    var contN = document.getElementById('calNoleggiDetail');
+    document.getElementById('calNoleggiTitle').textContent = '📦 Noleggi del ' + new Date(ds + 'T00:00:00').toLocaleDateString('it-IT', {day:'numeric', month:'long', year:'numeric'});
+    var listN = document.getElementById('calNoleggiList');
+    if(!nv.length){ listN.innerHTML = '<div class="empty">📦 Nessun noleggio</div>'; }
+    else {
+      var htmlN = '<table><thead><tr><th>Cliente</th><th>Materiale</th><th>Stato</th><th style="text-align:right">Prezzo</th></tr></thead><tbody>';
+      nv.forEach(function(n){
+        var statoLabel = n.stato === 'da_rientrare' ? '📤 Da rientrare' : '📥 Rientrato';
+        var statoClass = n.stato === 'da_rientrare' ? 'badge-warning' : 'badge-success';
+        htmlN += '<tr><td><strong>' + clienteNome(n.clienteId) + '</strong></td><td>' + escapeHtml(n.materiale) + '</td><td><span class="badge ' + statoClass + '">' + statoLabel + '</span></td><td class="num">€' + euro(n.prezzo || 0) + '</td></tr>';
+      });
+      htmlN += '</tbody></table>';
+      listN.innerHTML = htmlN;
+    }
+    contN.style.display = 'block';
+  }
+});
+
+var datiCaricati = caricaTutto();
+if(!datiCaricati){ salvaTutto(); }
+aggiornaSelectClienti();
+renderAll();
+console.log('🚀 Studio Log Pro avviato!');
+</script>
+</body>
+</html>
