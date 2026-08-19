@@ -294,36 +294,12 @@ tr:last-child td{border-bottom:none}
 
 <script>
 // ============================================================
-// DATI INIZIALI
+// DATI INIZIALI - TUTTI VUOTI
 // ============================================================
-var clienti = [
-  {id:1, nome:'Mario Rossi', email:'mario@email.it', telefono:'3331234567'},
-  {id:2, nome:'Laura Bianchi', email:'laura@email.it', telefono:'3337654321'},
-  {id:3, nome:'Luca Verdi', email:'luca@email.it', telefono:'3339876543'},
-  {id:4, nome:'Studio Tecnico', email:'info@studio.it', telefono:'051123456'}
-];
-
-var lavori = [
-  {id:1, clienteId:1, descrizione:'Mario Rossi - Mix album', tipo:'Mix', tipoPagamento:'cooperativa', luogo:'Bologna', giorni:3, prezzoGiorno:350, startDate:'2026-01-15', endDate:'2026-01-17', note:'', pagato:false},
-  {id:2, clienteId:2, descrizione:'Laura Bianchi - Service audio', tipo:'Service audio', tipoPagamento:'occasionale_sostituto', luogo:'Milano', giorni:2, prezzoGiorno:400, startDate:'2026-01-20', endDate:'2026-01-21', note:'', pagato:false},
-  {id:3, clienteId:1, descrizione:'Mario Rossi - Mastering', tipo:'Mastering', tipoPagamento:'netto', luogo:'Bologna', giorni:1, prezzoGiorno:250, startDate:'2026-01-25', endDate:'2026-01-25', note:'', pagato:true},
-  {id:4, clienteId:3, descrizione:'Luca Verdi - Registrazione live', tipo:'Registrazione', tipoPagamento:'occasionale_sostituto', luogo:'Roma', giorni:4, prezzoGiorno:380, startDate:'2026-02-05', endDate:'2026-02-08', note:'', pagato:false},
-  {id:5, clienteId:4, descrizione:'Studio Tecnico - Consulenza audio', tipo:'Consulenza', tipoPagamento:'cooperativa', luogo:'Modena', giorni:2, prezzoGiorno:300, startDate:'2026-02-10', endDate:'2026-02-11', note:'', pagato:false}
-];
-
-var noleggi = [
-  {id:1, clienteId:1, materiale:'Console M32 + Stagebox', descrizione:'Noleggio per concerto', startDate:'2026-01-18', endDate:'2026-01-22', stato:'rientrato', prezzo:450},
-  {id:2, clienteId:2, materiale:'Microfoni Shure + Cavi XLR', descrizione:'Set completo per registrazione', startDate:'2026-02-01', endDate:'2026-02-15', stato:'da_rientrare', prezzo:320}
-];
-
-var strumenti = [
-  {id:1, nome:'Console M32', categoria:'Console', seriale:'M32-001', note:'In ottime condizioni'},
-  {id:2, nome:'Stagebox S32', categoria:'Stagebox', seriale:'S32-002', note:''},
-  {id:3, nome:'Microfono Shure SM58', categoria:'Microfoni', seriale:'SM58-003', note:'Usato ma funzionante'},
-  {id:4, nome:'Microfono Shure Beta 58', categoria:'Microfoni', seriale:'B58-004', note:''},
-  {id:5, nome:'Casse JBL EON 615', categoria:'Casse', seriale:'EON-005', note:''},
-  {id:6, nome:'Cavo XLR 5m', categoria:'Cavi', seriale:'', note:'Set di 10 cavi'}
-];
+var clienti = [];
+var lavori = [];
+var noleggi = [];
+var strumenti = [];
 
 var PAYMENT_TYPES = [
   {id:'cooperativa', label:'Cooperativa (25%)'},
@@ -334,10 +310,10 @@ var PAYMENT_TYPES = [
 var TIPI = ['Fonico live','Backline','Monitor','Service audio','Registrazione','Mix','Mastering','Noleggio','Consulenza','Altro'];
 var OCC_LIMIT = 5000;
 
-var nextId = 6;
-var nextCl = 5;
-var nextNoleggio = 3;
-var nextStrumento = 7;
+var nextId = 1;
+var nextCl = 1;
+var nextNoleggio = 1;
+var nextStrumento = 1;
 var openClients = new Set();
 var openLavoriClients = new Set();
 var calMonth = new Date().getMonth();
@@ -1331,18 +1307,14 @@ document.addEventListener('click', function(e){
   }
 });
 
-var datiCaricati = caricaTutto();
-if(!datiCaricati){ salvaTutto(); }
-aggiornaSelectClienti();
-renderAll();
 // ============================================================
 // SINCRONIZZAZIONE CON GITHUB
 // ============================================================
 
 const GITHUB_CONFIG = {
     username: 'Mattia-Ridolfo',   // SOSTITUISCI COL TUO USERNAME
-    repo: 'Gestionale',              // NOME DEL TUO REPOSITORY
-    token: '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'            // SOSTITUISCI COL TOKEN CHE HAI APPENA CREATO
+    repo: 'Gestionale',            // NOME DEL TUO REPOSITORY
+    token: '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'      // SOSTITUISCI COL TOKEN
 };
 
 // Carica i dati da GitHub
