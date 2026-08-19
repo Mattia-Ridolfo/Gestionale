@@ -1301,13 +1301,13 @@ document.addEventListener('click', function(e){
 });
 
 // ============================================================
-// SINCRONIZZAZIONE CON GITHUB - QUI PRIMA DELL'AVVIO!
+// SINCRONIZZAZIONE CON GITHUB - ATTENZIONE!
 // ============================================================
 
 const GITHUB_CONFIG = {
-    username: 'Mattia-Ridolfo',   // SOSTITUISCI COL TUO USERNAME
-    repo: 'Gestionale',            // NOME DEL TUO REPOSITORY
-    token: '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'      // SOSTITUISCI COL TOKEN
+    username: 'Mattia-Ridolfo',   // IL TUO USERNAME
+    repo: 'Gestionale',            // IL NOME DEL TUO REPOSITORY
+    token: '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'   // IL TUO TOKEN
 };
 
 // Carica i dati da GitHub
@@ -1382,7 +1382,7 @@ async function salvaSuGitHub() {
     }
 }
 
-// Salva TUTTO e sincronizza su GitHub
+// Salva TUTTO e sincronizza su GitHub (ogni 3 modifiche)
 const salvaTuttoOriginale = salvaTutto;
 salvaTutto = function() {
     salvaTuttoOriginale();
@@ -1397,22 +1397,13 @@ salvaTutto = function() {
 // AVVIO CON SINCRONIZZAZIONE
 // ============================================================
 async function avvioCompleto() {
-    // 1. Carica i dati da GitHub
     await caricaDaGitHub();
-    
-    // 2. Carica i dati dal localStorage
     caricaTutto();
-    
-    // 3. Aggiorna i select dei clienti
     aggiornaSelectClienti();
-    
-    // 4. Renderizza tutto
     renderAll();
-    
     console.log('🚀 Studio Log Pro avviato con sincronizzazione!');
 }
 
-// Avvia l'app
 avvioCompleto();
 </script>
 </body>
