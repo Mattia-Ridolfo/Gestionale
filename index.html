@@ -1335,7 +1335,113 @@ var datiCaricati = caricaTutto();
 if(!datiCaricati){ salvaTutto(); }
 aggiornaSelectClienti();
 renderAll();
-console.log('🚀 Studio Log Pro avviato!');
+// ============================================================
+// SINCRONIZZAZIONE CON GITHUB
+// ============================================================
+
+const GITHUB_CONFIG = {
+    username: 'TUO_USERNAME_GITHUB',   // SOSTITUISCI COL TUO USERNAME
+    repo: 'studio-log-pro',              // NOME DEL TUO REPOSITORY
+    token: 'IL_TUO_TOKEN_QUI'            // SOSTITUISCI COL TOKEN CHE HAI APPENA CREATO
+};
+
+// Carica i dati da GitHub
+async function caricaDaGitHub() {
+    try {
+        const url = `https://raw.githubusercontent.com/${GITHUB_CONFIG.username}/${GITHUB_CONFIG.repo}/main/data.json`;
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('File non trovato');
+        const data = await response.json();
+        
+        if (data.clienti) localStorage.setItem('sl_clienti', JSON.stringify(data.clienti));
+        if (data.lavori) localStorage.setItem('sl_lavori', JSON.stringify(data.lavori));
+        if (data.noleggi) localStorage.setItem('sl_noleggi', JSON.stringify(data.noleggi));
+        if (data.strumenti) localStorage.setItem('sl_strumenti', JSON.stringify(data.strumenti));
+        if (data.nextId) localStorage.setItem('sl_nextId', JSON.stringify(data.nextId));
+        
+        console.log('✅ Dati caricati da GitHub');
+        return true;
+    } catch(e) {
+        console.log('ℹ️ Nessun dato su GitHub, uso quelli locali');
+        return false;
+    }
+}
+
+// Salva i dati su GitHub
+async function salvaSuGitHub() {
+    try {
+        const data = {
+            clienti: JSON.parse(localStorage.getItem('sl_clienti') || '[]'),
+            lavori: JSON.parse(localStorage.getItem('sl_lavori') || '[]'),
+            noleggi: JSON.parse(localStorage.getItem('sl_noleggi') || '[]'),
+            strumenti: JSON.parse(localStorage.getItem('sl_strumenti') || '[]'),
+            nextId: JSON.parse(localStorage.getItem('sl_nextId') || '{}')
+        };
+        
+        const content = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
+        const url = `https://api.github.com/repos/${GITHUB_CONFIG.username}/${GITHUB_CONFIG.repo}/contents/data.json`;
+        
+        let sha = '';
+        try {
+            const response = await fetch(url);
+            if (response.ok) {
+                const fileData = await response.json();
+                sha = fileData.sha;
+            }
+        } catch(e) {}
+        
+        const response = await fetch(url, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `token ${GITHUB_CONFIG.token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                message: 'Aggiornamento dati automatico',
+                content: content,
+                sha: sha,
+                branch: 'main'
+            })
+        });
+        
+        if (response.ok) {
+            console.log('✅ Dati salvati su GitHub');
+            return true;
+        } else {
+            console.error('❌ Errore salvataggio su GitHub');
+            return false;
+        }
+    } catch(e) {
+        console.error('❌ Errore:', e);
+        return false;
+    }
+}
+
+// Salva TUTTO e sincronizza su GitHub
+const salvaTuttoOriginale = salvaTutto;
+salvaTutto = function() {
+    salvaTuttoOriginale();
+    if (!window._syncCount) window._syncCount = 0;
+    window._syncCount++;
+    if (window._syncCount % 3 === 0) {
+        salvaSuGitHub();
+    }
+};
+
+// All'avvio, carica da GitHub
+async function avvioConSincronizzazione() {
+    await caricaDaGitHub();
+    caricaTutto();
+    renderAll();
+    console.log('🔄 Sincronizzazione completata!');
+}
+
+// Avvio modificato
+avvioConSincronizzazione().then(() => {
+    aggiornaSelectClienti();
+});
+
+console.log('🚀 Studio Log Pro avviato con sincronizzazione!');
 </script>
 </body>
 </html>
