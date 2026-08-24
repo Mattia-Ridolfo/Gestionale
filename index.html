@@ -116,9 +116,10 @@ tr:last-child td{border-bottom:none}
 .lavoro-body{display:none;padding:0 12px 12px}
 .lavoro-card.open .lavoro-body{display:block}
 .lavoro-card.open .caret{transform:rotate(90deg)}
-.contatto-row{display:flex;gap:6px;margin-bottom:6px;align-items:center}
-.contatto-row select{flex:0 0 110px;background:#2a2a3e;color:#eee;border:1px solid #333;border-radius:6px;padding:8px;font-size:14px}
-.contatto-row input{flex:1;font-size:14px;background:#2a2a3e;color:#eee;border:1px solid #333;border-radius:6px;padding:8px 10px}
+.contatto-row{display:flex;gap:6px;margin-bottom:6px;align-items:center;flex-wrap:wrap}
+.contatto-row select{flex:0 0 100px;background:#2a2a3e;color:#eee;border:1px solid #333;border-radius:6px;padding:8px;font-size:14px}
+.contatto-row input.contatto-nome{flex:0 0 130px;font-size:14px;background:#2a2a3e;color:#eee;border:1px solid #333;border-radius:6px;padding:8px 10px}
+.contatto-row input.contatto-valore{flex:1;min-width:100px;font-size:14px;background:#2a2a3e;color:#eee;border:1px solid #333;border-radius:6px;padding:8px 10px}
 .contatto-row button{flex:0 0 auto}
 .sync-bar{background:#232338;border:1px solid #333;border-radius:8px;padding:8px 14px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;font-size:12px}
 .sync-bar .status{display:flex;align-items:center;gap:6px;color:#888}
@@ -465,8 +466,10 @@ function migraContattiClienti(){
   clienti.forEach(function(c){
     if(!Array.isArray(c.contatti)){
       c.contatti = [];
-      if(c.email) c.contatti.push({tipo:'Email', valore:c.email});
-      if(c.telefono) c.contatti.push({tipo:'Telefono', valore:c.telefono});
+      if(c.email) c.contatti.push({nome:'', tipo:'Email', valore:c.email});
+      if(c.telefono) c.contatti.push({nome:'', tipo:'Telefono', valore:c.telefono});
+    } else {
+      c.contatti.forEach(function(ct){ if(ct.nome === undefined) ct.nome = ''; });
     }
   });
 }
@@ -855,7 +858,7 @@ function renderClienti(){
     html += '<span class="meta">';
     var contattiIcon = {Email:'📧', Telefono:'📱', Altro:'🔗'};
     (cl.contatti || []).forEach(function(ct){
-      html += (contattiIcon[ct.tipo] || '🔗') + ' ' + escapeHtml(ct.valore) + '  ';
+      html += (contattiIcon[ct.tipo] || '🔗') + ' ' + (ct.nome ? escapeHtml(ct.nome) + ': ' : '') + escapeHtml(ct.valore) + '  ';
     });
     html += ' <button class="btn btn-ghost btn-sm" onclick="apriModalCliente(' + cl.id + ')" style="margin-left:8px">✎</button>';
     html += ' <button class="btn btn-danger btn-sm" onclick="eliminaCliente(' + cl.id + ')">🗑</button>';
@@ -1013,12 +1016,13 @@ function renderContattiModal(){
   var html = '';
   modalContatti.forEach(function(ct, i){
     html += '<div class="contatto-row">';
+    html += '<input type="text" class="contatto-nome" value="' + escapeHtml(ct.nome||'') + '" placeholder="Nome referente" oninput="modalContatti[' + i + '].nome=this.value">';
     html += '<select onchange="modalContatti[' + i + '].tipo=this.value">';
     CONTATTO_TIPI.forEach(function(t){
       html += '<option value="' + t + '"' + (ct.tipo === t ? ' selected' : '') + '>' + t + '</option>';
     });
     html += '</select>';
-    html += '<input type="text" value="' + escapeHtml(ct.valore) + '" placeholder="Valore" oninput="modalContatti[' + i + '].valore=this.value">';
+    html += '<input type="text" class="contatto-valore" value="' + escapeHtml(ct.valore) + '" placeholder="Valore" oninput="modalContatti[' + i + '].valore=this.value">';
     html += '<button type="button" class="btn btn-danger btn-sm" onclick="rimuoviContattoModal(' + i + ')">🗑</button>';
     html += '</div>';
   });
@@ -1031,7 +1035,7 @@ function rimuoviContattoModal(i){
 }
 
 document.getElementById('btnAddContatto').addEventListener('click', function(){
-  modalContatti.push({tipo:'Email', valore:''});
+  modalContatti.push({nome:'', tipo:'Email', valore:''});
   renderContattiModal();
 });
 
@@ -1048,7 +1052,7 @@ function apriModalCliente(id){
     btnDel.style.display = 'inline-block';
     document.getElementById('clienteId').value = c.id;
     document.getElementById('fClienteNome').value = c.nome;
-    modalContatti = (c.contatti || []).map(function(ct){ return {tipo:ct.tipo, valore:ct.valore}; });
+    modalContatti = (c.contatti || []).map(function(ct){ return {nome:ct.nome||'', tipo:ct.tipo, valore:ct.valore}; });
   } else {
     title.textContent = 'Nuovo cliente';
     btnDel.style.display = 'none';
@@ -1182,7 +1186,7 @@ document.getElementById('btnSalvaCliente').addEventListener('click', function(){
   var nome = document.getElementById('fClienteNome').value.trim();
   if(!nome){ alert('Inserisci il nome'); return; }
   var contattiPuliti = modalContatti
-    .map(function(ct){ return {tipo: ct.tipo, valore: (ct.valore||'').trim()}; })
+    .map(function(ct){ return {nome: (ct.nome||'').trim(), tipo: ct.tipo, valore: (ct.valore||'').trim()}; })
     .filter(function(ct){ return ct.valore; });
   var primaEmail = contattiPuliti.find(function(ct){ return ct.tipo === 'Email'; });
   var primoTel = contattiPuliti.find(function(ct){ return ct.tipo === 'Telefono'; });
